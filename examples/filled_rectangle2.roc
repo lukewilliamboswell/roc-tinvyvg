@@ -6,22 +6,21 @@ app "example"
     imports [
         pf.Stdout,
         tvg.Graphic.{Graphic},
-        tvg.Color,
         tvg.Style,
-        tvg.Command,
+        tvg.Simple,
+        tvg.Color.{Color},
     ]
     provides [main] to pf
 
 main = 
 
-    graphic : Graphic
-    graphic = 
-        g1, whiteId <- Graphic.addColor (Graphic.graphic {}) (Color.fromBasic White)
+    purple : Color
+    purple = Color.fromBasic Purple
 
-        rectStyle = Style.flat whiteId
-        
-        Graphic.addCommand g1 (Command.fillRectangles rectStyle [{x: 10, y: 15, width: 50, height: 12}])
+    graphic : Graphic
+    graphic = Simple.box purple {x: 10, y: 15, width: 50, height: 12}
     
-    graphic 
-    |> Graphic.toStr 
-    |> Stdout.line
+    tvgt : Str
+    tvgt = Graphic.toStr graphic
+    
+    Stdout.line tvgt
