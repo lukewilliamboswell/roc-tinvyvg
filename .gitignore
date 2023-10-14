@@ -1,1 +1,12 @@
+# Ignore the examples
+examples/example
+examples/*.tvgt
+examples/*.svg
+
+# Ignore the generated docs
 generated-docs
+
+# Ignore package bundles
+*.tar.br
+
+.DS_Store

@@ -2,7 +2,7 @@ package "tinyvg"
     exposes [
         Graphic,
         Color,
-        ColorIndex,
         Style,
+        Command,
     ]
     packages {}

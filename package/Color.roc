@@ -18,6 +18,7 @@ isEq = \@Color first, @Color second -> first == second
 
 ColorEncoding : [RGBA8888]
 
+## Build a TinyVG Text format string section from this Color
 toTvgt : Color, ColorEncoding -> Str
 toTvgt = \@Color c, _ -> 
     # TODO use ColorEncoding
@@ -67,6 +68,11 @@ expect truncateFrac "0.498039215686274509" == "0.49"
 
 expect (@Color (RGBA8888 0 255 0 255)) |> toTvgt RGBA8888 == "(0.0 1.0 0.0 1.0)"
 
+## The color Purple used for the Roc bird logo
+rocPurple : Color
+rocPurple = @Color (RGBA8888 124 56 245 255) # #7c38f5
+
+## A basic color pallette
 Basic : [
     Red,
     Orange,
@@ -85,11 +91,9 @@ Basic : [
     Gray,
 ]
 
-rocPurple : Color
-rocPurple = @Color (RGBA8888 124 56 245 255) # #7c38f5
-
 expect rocPurple == (@Color (RGBA8888 124 56 245 255))
 
+## Convert a Basic tag to a Color
 fromBasic : Basic -> Color
 fromBasic = \b ->
     when b is
@@ -109,6 +113,7 @@ fromBasic = \b ->
         Black -> @Color (RGBA8888 0 0 0 255) # #000000
         Gray -> @Color (RGBA8888 128 128 128 255) # #808080
 
+# Encode a Basic tag as a Str
 basicToStr : Basic -> Str
 basicToStr = \b ->
     when b is
@@ -128,6 +133,7 @@ basicToStr = \b ->
         Black -> "Black"
         Gray -> "Gray"
 
+# Decode a Basic tag from a Str
 basicFromStr : Str -> Result Basic [InvalidBasicColor]
 basicFromStr = \s ->
     when s is
