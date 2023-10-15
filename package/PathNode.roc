@@ -23,40 +23,40 @@ interface PathNode
 # (arc_circle <line_width> <radius> <large_arc> <sweep> (<x> <y>))
 # (close <line_width>)
 PathNode := [
-    Horizontal LineWidth U32,
-    Vertical LineWidth U32,
-    Line LineWidth (U32, U32),
-    Bezier LineWidth (U32, U32) (U32, U32) (U32, U32),
-    QuadraticBezier LineWidth (U32, U32) (U32, U32),
-    ArcEllipse LineWidth U32 U32 Dec Bool Bool (U32, U32),
-    ArcCircle LineWidth U32 Bool Bool (U32, U32),
+    Horizontal LineWidth Dec,
+    Vertical LineWidth Dec,
+    Line LineWidth (Dec, Dec),
+    Bezier LineWidth (Dec, Dec) (Dec, Dec) (Dec, Dec),
+    QuadraticBezier LineWidth (Dec, Dec) (Dec, Dec),
+    ArcEllipse LineWidth Dec Dec Dec Bool Bool (Dec, Dec),
+    ArcCircle LineWidth Dec Bool Bool (Dec, Dec),
     Close LineWidth,
 ] implements [Eq { isEq: isEq }]
 
 isEq : PathNode, PathNode -> Bool
 isEq = \@PathNode first, @PathNode second -> first == second
 
-LineWidth : [NoChange, Set U32]
+LineWidth : [NoChange, Set Dec]
 
-horizontal : { lw : LineWidth, x : U32 } -> PathNode
+horizontal : { lw : LineWidth, x : Dec } -> PathNode
 horizontal = \{ lw, x } -> @PathNode (Horizontal lw x)
 
-vertical : { lw : LineWidth, y : U32 } -> PathNode
+vertical : { lw : LineWidth, y : Dec } -> PathNode
 vertical = \{ lw, y } -> @PathNode (Vertical lw y)
 
-line : { lw : LineWidth, x : U32, y : U32 } -> PathNode
+line : { lw : LineWidth, x : Dec, y : Dec } -> PathNode
 line = \{ lw, x, y } -> @PathNode (Line lw (x, y))
 
-bezier : { lw : LineWidth, x1 : U32, y1 : U32, x2 : U32, y2 : U32, x3 : U32, y3 : U32 } -> PathNode
+bezier : { lw : LineWidth, x1 : Dec, y1 : Dec, x2 : Dec, y2 : Dec, x3 : Dec, y3 : Dec } -> PathNode
 bezier = \{ lw, x1, y1, x2, y2, x3, y3 } -> @PathNode (Bezier lw (x1, y1) (x2, y2) (x3, y3))
 
-quadraticBezier : { lw : LineWidth, x1 : U32, y1 : U32, x2 : U32, y2 : U32 } -> PathNode
+quadraticBezier : { lw : LineWidth, x1 : Dec, y1 : Dec, x2 : Dec, y2 : Dec } -> PathNode
 quadraticBezier = \{ lw, x1, y1, x2, y2 } -> @PathNode (QuadraticBezier lw (x1, y1) (x2, y2))
 
-arcEllipse : { lw : LineWidth, radiusX : U32, radiusY : U32, angle : Dec, largeArc : Bool, sweep : Bool, x : U32, y : U32 } -> PathNode
+arcEllipse : { lw : LineWidth, radiusX : Dec, radiusY : Dec, angle : Dec, largeArc : Bool, sweep : Bool, x : Dec, y : Dec } -> PathNode
 arcEllipse = \{ lw, radiusX, radiusY, angle, largeArc, sweep, x, y } -> @PathNode (ArcEllipse lw radiusX radiusY angle largeArc sweep (x, y))
 
-arcCircle : { lw : LineWidth, radius : U32, largeArc : Bool, sweep : Bool, x : U32, y : U32 } -> PathNode
+arcCircle : { lw : LineWidth, radius : Dec, largeArc : Bool, sweep : Bool, x : Dec, y : Dec } -> PathNode
 arcCircle = \{ lw, radius, largeArc, sweep, x, y } -> @PathNode (ArcCircle lw radius largeArc sweep (x, y))
 
 close : { lw : LineWidth } -> PathNode
@@ -83,23 +83,23 @@ toTvgt = \@PathNode pn ->
         ArcCircle lw radius largeArc sweep (x,y) -> "(arc_circle \(lineWidthToTvgt lw) \(Num.toStr radius) \(boolToStr largeArc) \(boolToStr sweep) (\(Num.toStr x) \(Num.toStr y)))"
         Close lw -> "(close \(lineWidthToTvgt lw))"
 
-expect horizontal { lw: NoChange, x: 285 } |> toTvgt == "(horiz - 285)"
-expect vertical { lw: NoChange, y: 670 } |> toTvgt == "(vert - 670)"
-expect line { lw: NoChange, x: 375, y: 660 } |> toTvgt == "(line - 375 660)"
+expect horizontal { lw: NoChange, x: 285 } |> toTvgt == "(horiz - 285.0)"
+expect vertical { lw: NoChange, y: 670 } |> toTvgt == "(vert - 670.0)"
+expect line { lw: NoChange, x: 375, y: 660 } |> toTvgt == "(line - 375.0 660.0)"
 expect 
     bezier { lw: NoChange, x1: 350, y1: 680, x2: 365, y2: 710, x3: 350, y3: 710 } 
-    |> toTvgt == "(bezier - (350 680) (365 710) (350 710))"
+    |> toTvgt == "(bezier - (350.0 680.0) (365.0 710.0) (350.0 710.0))"
 
 expect 
     quadraticBezier { lw: NoChange, x1: 325, y1: 710, x2: 325, y2: 685 } 
-    |> toTvgt == "(quadratic_bezier - (325 710) (325 685))"
+    |> toTvgt == "(quadratic_bezier - (325.0 710.0) (325.0 685.0))"
 
 expect 
     arcEllipse { lw: Set 20, radiusX: 35, radiusY: 50, angle: 1.5, largeArc: Bool.false, sweep: Bool.true, x: 300, y: 695 }
-    |> toTvgt == "(arc_ellipse 20 35 50 1.5 false true (300 695))"
+    |> toTvgt == "(arc_ellipse 20.0 35.0 50.0 1.5 false true (300.0 695.0))"
 
 expect 
     arcCircle { lw: NoChange, radius: 14, largeArc: Bool.false, sweep: Bool.false, x: 275, y: 685 }
-    |> toTvgt == "(arc_circle - 14 false false (275 685))"
+    |> toTvgt == "(arc_circle - 14.0 false false (275.0 685.0))"
 
 expect close { lw: NoChange } |> toTvgt == "(close -)"
