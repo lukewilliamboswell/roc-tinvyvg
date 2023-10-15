@@ -6,21 +6,23 @@ A graphics library for the Roc programming language implementing the [Tiny Vecto
 
 In-development -- WIP to support the [roc-graphics-mach experimental platform](https://github.com/lukewilliamboswell/roc-graphics-mach)
 
-Happy to accept a PR if there is anything you would like to add. Please review the [TinyVG text format](https://github.com/TinyVG/specification/blob/main/text-format.md) and you may find the [examples](https://github.com/TinyVG/examples/blob/main/files/everything-32.tvgt) helpful for writing tests.
+If there is anything you would like to add raise an issue and/or a PR. Please review the [TinyVG text format](https://github.com/TinyVG/specification/blob/main/text-format.md) and the [examples](https://github.com/TinyVG/examples/blob/main/files/everything-32.tvgt) which are helpful for writing tests.
 
 ## Examples 
 
-Build the examples using `bash build.sh`, you should see `.tvgt` and `.svg` files in the `examples/` directory. 
+You can build all the examples using `bash examples.sh`, you should see `.tvgt` and `.svg` files in the `examples/` directory. 
 
 > Note that you will need `tvg-text` available on your PATH to build the examples.
 
 ## Documentation
 
+Hosted on GitHub pages site at [https://lukewilliamboswell.github.io/roc-tinvyvg/](https://lukewilliamboswell.github.io/roc-tinvyvg/)
+
 To generate locally use `roc docs package/main.roc` and then open a file server in the `generated-docs/` directory.
 
 ## Package
 
-To bundle into a package use `roc build --bundle .tar.br package/main.roc`
+To bundle into a package use `roc build --bundle .tar.br package/main.roc` and then host the resulting `.tar.br` file on a web server.
 
 # Drawing
 
