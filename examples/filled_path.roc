@@ -17,8 +17,9 @@ main =
 
     graphic : Graphic
     graphic = 
-        g1, white <- Graphic.addColor (Graphic.graphic {}) (Color.fromBasic White)
-        g2, purple <- Graphic.addColor g1 (Color.rocPurple)
+        g0 = Graphic.graphic {}
+        g1, white <- g0 |> Graphic.addColor (Color.fromBasic White)
+        g2, purple <- g1 |> Graphic.addColor (Color.rocPurple)
 
         # Draws the white square background
         whiteSquare = Command.fillPath (Style.flat white) {x : 0, y : 0 } [

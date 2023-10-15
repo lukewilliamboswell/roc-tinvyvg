@@ -5,6 +5,7 @@ interface Command
         fillRectangles,
         fillPath,
         outlineFillRectangles,
+        drawLines,
         toTvgt,
     ]
     imports [
@@ -19,6 +20,7 @@ Command := [
         FillRectangles Style (List PositionSize),
         FillPath Style Position (List PathNode),
         OutlineFillRectangles Style Style LineWidth (List PositionSize),
+        DrawLines Style LineWidth (List (Position, Position)),
     ] implements [Eq { isEq: isEq }]
 
 isEq : Command, Command -> Bool
@@ -34,12 +36,17 @@ outlineFillRectangles : { fillStyle : Style, lineStyle : Style, lw ? LineWidth }
 outlineFillRectangles = \{ fillStyle, lineStyle, lw ? NoChange }, rects -> 
     @Command (OutlineFillRectangles fillStyle lineStyle lw rects)
 
+drawLines : { style : Style, lw ? LineWidth }, List (Position, Position) -> Command
+drawLines = \{ style, lw ? NoChange }, segments ->
+    @Command (DrawLines style lw segments)
+
 toTvgt : Command -> Str
 toTvgt = \@Command command ->
     when command is 
         FillRectangles style ps -> "(fill_rectangles \(Style.toTvgt style) (\(ps |> List.map positionSizeToTvgt |> Str.joinWith "")))"
         FillPath style position nodes -> "(fill_path \(Style.toTvgt style) (\(positionToTvgt position) (\(nodes |> List.map PathNode.toTvgt |> Str.joinWith ""))))"
         OutlineFillRectangles fillStyle lineStyle lw rects -> "(outline_fill_rectangles \(Style.toTvgt fillStyle) \(Style.toTvgt lineStyle) \(lineWidthToTvgt lw) (\(rects |> List.map positionSizeToTvgt |> Str.joinWith "")))"
+        DrawLines style lw segments -> "(draw_lines \(Style.toTvgt style) \(lineWidthToTvgt lw) (\(segments |> List.map lineSegmentToTvgt |> Str.joinWith " ")))"
 
 positionSizeToTvgt : PositionSize -> Str
 positionSizeToTvgt = \{x,y,width, height} ->
@@ -48,6 +55,12 @@ positionSizeToTvgt = \{x,y,width, height} ->
 positionToTvgt : Position -> Str
 positionToTvgt = \{x,y} ->
     "(\(Num.toStr x) \(Num.toStr y))"
+
+lineSegmentToTvgt : (Position, Position) -> Str
+lineSegmentToTvgt = \({x: x1, y: y1},{x: x2, y: y2}) -> 
+    "((\(Num.toStr x1) \(Num.toStr y1)) (\(Num.toStr x2) \(Num.toStr y2)))"
+
+expect lineSegmentToTvgt ({x: 275, y:185},{x:375,y:195})  == "((275.0 185.0) (375.0 195.0))"
 
 testStyle1 = Style.flat 43
 testStyle2 = Style.radial (325, 610) (375, 635) 1 2
@@ -78,3 +91,15 @@ expect
         { x: 275, y: 145, width: 100, height: 15 },
     ] |> toTvgt
     a == "(outline_fill_rectangles (radial (325.0 130.0) (375.0 155.0) 1 2) (flat 3) 2.5 ((275.0 105.0 100.0 15.0)(275.0 125.0 100.0 15.0)(275.0 145.0 100.0 15.0)))"
+
+# test drawLines
+expect 
+    style = Style.radial (325, 210) (375, 235) 1 2
+    lw = Set 2.5
+    a = drawLines { style, lw } [
+        ({x:275, y:185},{x:375,y:195}),
+        ({x:275, y:195},{x:375,y:205}),
+        ({x:275, y:205},{x:375,y:215}),
+        ({x:275, y:215},{x:375,y:225}),
+    ] |> toTvgt
+    a == "(draw_lines (radial (325.0 210.0) (375.0 235.0) 1 2) 2.5 (((275.0 185.0) (375.0 195.0))((275.0 195.0) (375.0 205.0))((275.0 205.0) (375.0 215.0))((275.0 215.0) (375.0 225.0))))"
