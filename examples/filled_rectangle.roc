@@ -16,13 +16,14 @@ main =
 
     graphic : Graphic
     graphic = 
-        g1, _whiteId <- Graphic.addColor (Graphic.graphic {}) (Color.fromBasic White)
+        g1, blue <- Graphic.addColor (Graphic.graphic {}) (Color.fromBasic Blue)
 
-        g2, purpleId <- Graphic.addColor g1 (Color.fromBasic Purple)
+        rectStyle = Style.flat blue
 
-        rectStyle = Style.flat purpleId
+        rect = Command.fillRectangles rectStyle [{x: 0, y: 0, width: 10, height: 20}]
         
-        Graphic.addCommand g2 (Command.fillRectangles rectStyle [{x: 0, y: 0, width: 10, height: 20}])
+        g1
+        |> Graphic.addCommand rect
     
     graphic 
     |> Graphic.toStr 

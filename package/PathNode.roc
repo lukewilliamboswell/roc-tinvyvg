@@ -11,6 +11,7 @@ interface PathNode
         arcCircle,
         close,
         toTvgt,
+        lineWidthToTvgt,
     ]
     imports []
 

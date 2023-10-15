@@ -4,11 +4,12 @@ interface Command
         Command,
         fillRectangles,
         fillPath,
+        outlineFillRectangles,
         toTvgt,
     ]
     imports [
         Style.{Style},
-        PathNode.{PathNode},
+        PathNode.{PathNode, LineWidth, lineWidthToTvgt},
     ]
 
 PositionSize : { x: Dec, y: Dec, width: Dec, height: Dec}
@@ -17,6 +18,7 @@ Position : {x : Dec, y : Dec }
 Command := [
         FillRectangles Style (List PositionSize),
         FillPath Style Position (List PathNode),
+        OutlineFillRectangles Style Style LineWidth (List PositionSize),
     ] implements [Eq { isEq: isEq }]
 
 isEq : Command, Command -> Bool
@@ -28,11 +30,16 @@ fillRectangles = \style, rects -> @Command (FillRectangles style rects)
 fillPath : Style, Position, List PathNode -> Command
 fillPath = \style, position, nodes -> @Command (FillPath style position nodes)
 
+outlineFillRectangles : { fillStyle : Style, lineStyle : Style, lw ? LineWidth }, List PositionSize -> Command
+outlineFillRectangles = \{ fillStyle, lineStyle, lw ? NoChange }, rects -> 
+    @Command (OutlineFillRectangles fillStyle lineStyle lw rects)
+
 toTvgt : Command -> Str
 toTvgt = \@Command command ->
     when command is 
         FillRectangles style ps -> "(fill_rectangles \(Style.toTvgt style) (\(ps |> List.map positionSizeToTvgt |> Str.joinWith "")))"
         FillPath style position nodes -> "(fill_path \(Style.toTvgt style) (\(positionToTvgt position) (\(nodes |> List.map PathNode.toTvgt |> Str.joinWith ""))))"
+        OutlineFillRectangles fillStyle lineStyle lw rects -> "(outline_fill_rectangles \(Style.toTvgt fillStyle) \(Style.toTvgt lineStyle) \(lineWidthToTvgt lw) (\(rects |> List.map positionSizeToTvgt |> Str.joinWith "")))"
 
 positionSizeToTvgt : PositionSize -> Str
 positionSizeToTvgt = \{x,y,width, height} ->
@@ -47,6 +54,8 @@ testStyle2 = Style.radial (325, 610) (375, 635) 1 2
 
 expect fillRectangles testStyle1 [] == @Command (FillRectangles testStyle1 [])
 expect positionSizeToTvgt { x: 0, y: 12, width: 3442, height: 1} == "(0.0 12.0 3442.0 1.0)"
+
+# test fillPath
 expect 
     fillPath testStyle2 {x : 275, y : 585 } [
         PathNode.horizontal { lw: NoChange, x: 285 },
@@ -58,3 +67,14 @@ expect
         PathNode.arcCircle { lw: NoChange, radius: 14, largeArc: Bool.false, sweep: Bool.false, x: 275, y: 610 },
         PathNode.close { lw: NoChange },
     ] |> toTvgt == "(fill_path (radial (325.0 610.0) (375.0 635.0) 1 2) ((275.0 585.0) ((horiz - 285.0)(vert - 595.0)(line - 375.0 585.0)(bezier - (350.0 605.0) (365.0 635.0) (350.0 635.0))(quadratic_bezier - (325.0 635.0) (325.0 610.0))(arc_ellipse - 35.0 50.0 1.5 false true (300.0 620.0))(arc_circle - 14.0 false false (275.0 610.0))(close -))))"
+
+# test outlineFillRectangles
+expect
+    s1 = Style.radial (325, 130) (375, 155) 1 2
+    s2 = Style.flat 3
+    a = outlineFillRectangles { fillStyle: s1, lineStyle: s2, lw : Set 2.5 } [
+        { x: 275, y: 105, width: 100, height: 15 },
+        { x: 275, y: 125, width: 100, height: 15 },
+        { x: 275, y: 145, width: 100, height: 15 },
+    ] |> toTvgt
+    a == "(outline_fill_rectangles (radial (325.0 130.0) (375.0 155.0) 1 2) (flat 3) 2.5 ((275.0 105.0 100.0 15.0)(275.0 125.0 100.0 15.0)(275.0 145.0 100.0 15.0)))"
