@@ -9,6 +9,8 @@ interface PathNode
         quadraticBezier,
         arcEllipse,
         arcCircle,
+        close,
+        toTvgt,
     ]
     imports []
 
@@ -26,10 +28,13 @@ PathNode := [
     Line LineWidth (U32, U32),
     Bezier LineWidth (U32, U32) (U32, U32) (U32, U32),
     QuadraticBezier LineWidth (U32, U32) (U32, U32),
-    ArcEllipse LineWidth U32 U32 F32 Bool Bool (U32, U32),
+    ArcEllipse LineWidth U32 U32 Dec Bool Bool (U32, U32),
     ArcCircle LineWidth U32 Bool Bool (U32, U32),
     Close LineWidth,
-]
+] implements [Eq { isEq: isEq }]
+
+isEq : PathNode, PathNode -> Bool
+isEq = \@PathNode first, @PathNode second -> first == second
 
 LineWidth : [NoChange, Set U32]
 
@@ -48,7 +53,7 @@ bezier = \{ lw, x1, y1, x2, y2, x3, y3 } -> @PathNode (Bezier lw (x1, y1) (x2, y
 quadraticBezier : { lw : LineWidth, x1 : U32, y1 : U32, x2 : U32, y2 : U32 } -> PathNode
 quadraticBezier = \{ lw, x1, y1, x2, y2 } -> @PathNode (QuadraticBezier lw (x1, y1) (x2, y2))
 
-arcEllipse : { lw : LineWidth, radiusX : U32, radiusY : U32, angle : F32, largeArc : Bool, sweep : Bool, x : U32, y : U32 } -> PathNode
+arcEllipse : { lw : LineWidth, radiusX : U32, radiusY : U32, angle : Dec, largeArc : Bool, sweep : Bool, x : U32, y : U32 } -> PathNode
 arcEllipse = \{ lw, radiusX, radiusY, angle, largeArc, sweep, x, y } -> @PathNode (ArcEllipse lw radiusX radiusY angle largeArc sweep (x, y))
 
 arcCircle : { lw : LineWidth, radius : U32, largeArc : Bool, sweep : Bool, x : U32, y : U32 } -> PathNode
