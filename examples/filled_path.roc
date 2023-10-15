@@ -17,24 +17,35 @@ main =
 
     graphic : Graphic
     graphic = 
-        g1, purple <- Graphic.addColor (Graphic.graphic {}) (Color.rocPurple)
+        g1, white <- Graphic.addColor (Graphic.graphic {}) (Color.fromBasic White)
+        g2, purple <- Graphic.addColor g1 (Color.rocPurple)
+
+        # Draws the white square background
+        whiteSquare = Command.fillPath (Style.flat white) {x : 0, y : 0 } [
+            PathNode.line { x: 100, y: 0 },
+            PathNode.line { x: 100, y: 100 },
+            PathNode.line { x: 0, y: 100 },
+            PathNode.close {},
+        ]
 
         # Draws the roc-lang bird logo
         rocBird = Command.fillPath (Style.flat purple) {x : 24.75, y : 23.5 } [
-            PathNode.line { lw: NoChange, x: 48.633, y: 26.711 },
-            PathNode.line { lw: NoChange, x: 61.994, y: 42.51 },
-            PathNode.line { lw: NoChange, x: 70.716, y: 40.132 },
-            PathNode.line { lw: NoChange, x: 75.25, y: 45.5 },
-            PathNode.line { lw: NoChange, x: 69.75, y: 45.5 },
-            PathNode.line { lw: NoChange, x: 68.782, y: 49.869 },
-            PathNode.line { lw: NoChange, x: 51.217, y: 62.842 },
-            PathNode.line { lw: NoChange, x: 52.203, y: 68.713 },
-            PathNode.line { lw: NoChange, x: 42.405, y: 76.5 },
-            PathNode.line { lw: NoChange, x: 48.425, y: 46.209 },
-            PathNode.close { lw: NoChange },
+            PathNode.line { x: 48.633, y: 26.711 },
+            PathNode.line { x: 61.994, y: 42.51 },
+            PathNode.line { x: 70.716, y: 40.132 },
+            PathNode.line { x: 75.25, y: 45.5 },
+            PathNode.line { x: 69.75, y: 45.5 },
+            PathNode.line { x: 68.782, y: 49.869 },
+            PathNode.line { x: 51.217, y: 62.842 },
+            PathNode.line { x: 52.203, y: 68.713 },
+            PathNode.line { x: 42.405, y: 76.5 },
+            PathNode.line { x: 48.425, y: 46.209 },
+            PathNode.close {},
         ]
         
-        Graphic.addCommand g1 rocBird
+        g2
+        |> Graphic.addCommand whiteSquare
+        |> Graphic.addCommand rocBird
     
     graphic 
     |> Graphic.toStr 
