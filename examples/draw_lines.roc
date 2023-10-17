@@ -5,10 +5,14 @@ app "example"
     }
     imports [
         pf.Stdout,
+        pf.Path,
+        pf.File,
+        pf.Task,
         tvg.Graphic.{ Graphic },
         tvg.Color,
         tvg.Style,
         tvg.Command,
+        tvg.PathNode,
     ]
     provides [main] to pf
 
@@ -20,8 +24,8 @@ main =
             width: 400, 
             height: 400,
         }
-        g1, purple <- g0 |> Graphic.addColor (Color.fromBasic Purple)
-        g2, green <- g1 |> Graphic.addColor (Color.fromBasic Green)
+        g1, purple <- g0 |> Graphic.applyColor (Color.fromBasic Purple)
+        g2, green <- g1 |> Graphic.applyColor (Color.fromBasic Green)
 
         # draw a series of vertical lines
         lines = Command.drawLines { 
@@ -37,6 +41,10 @@ main =
         g2
         |> Graphic.addCommand lines
 
-    graphic
-    |> Graphic.toStr
-    |> Stdout.line
+    path = Path.fromStr "examples/draw_lines.tvgt"
+    tvgText = Graphic.toText graphic
+
+    result <- File.writeUtf8 path tvgText |> Task.attempt
+    when result is 
+        Ok {} -> Stdout.line "TinVG text format copied to draw_lines.tvgt"
+        Err _ -> Stdout.line "ERROR: Failed to write TinVG text format to draw_lines.tvgt"

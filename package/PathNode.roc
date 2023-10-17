@@ -10,19 +10,12 @@ interface PathNode
         arcEllipse,
         arcCircle,
         close,
-        toTvgt,
+        toText,
         lineWidthToTvgt,
     ]
     imports []
 
-# (horiz <line_width> <x>)
-# (vert <line_width> <y>)
-# (line <line_width> <x> <y>)
-# (bezier <line_width> (<x> <y>) (<x> <y>) (100<x> <y>))
-# (quadratic_bezier <line_width> (<x> <y>) (<x> <y>))
-# (arc_ellipse <line_width> <radius_x> <radius_y> <angle> <large_arc> <sweep> (<x> <y>))
-# (arc_circle <line_width> <radius> <large_arc> <sweep> (<x> <y>))
-# (close <line_width>)
+## Represents the various path node types that are supported by the TVG draw commands.
 PathNode := [
     Horizontal LineWidth Dec,
     Vertical LineWidth Dec,
@@ -33,6 +26,15 @@ PathNode := [
     ArcCircle LineWidth Dec Bool Bool (Dec, Dec),
     Close LineWidth,
 ] implements [Eq { isEq: isEq }]
+
+# (horiz <line_width> <x>)
+# (vert <line_width> <y>)
+# (line <line_width> <x> <y>)
+# (bezier <line_width> (<x> <y>) (<x> <y>) (100<x> <y>))
+# (quadratic_bezier <line_width> (<x> <y>) (<x> <y>))
+# (arc_ellipse <line_width> <radius_x> <radius_y> <angle> <large_arc> <sweep> (<x> <y>))
+# (arc_circle <line_width> <radius> <large_arc> <sweep> (<x> <y>))
+# (close <line_width>)
 
 isEq : PathNode, PathNode -> Bool
 isEq = \@PathNode first, @PathNode second -> first == second
@@ -72,8 +74,8 @@ lineWidthToTvgt = \lw ->
 boolToStr : Bool -> Str
 boolToStr = \b -> if b then "true" else "false"
 
-toTvgt : PathNode -> Str
-toTvgt = \@PathNode pn ->
+toText : PathNode -> Str
+toText = \@PathNode pn ->
     when pn is
         Horizontal lw x -> "(horiz \(lineWidthToTvgt lw) \(Num.toStr x))"
         Vertical lw y -> "(vert \(lineWidthToTvgt lw) \(Num.toStr y))"
@@ -84,23 +86,23 @@ toTvgt = \@PathNode pn ->
         ArcCircle lw radius largeArc sweep (x,y) -> "(arc_circle \(lineWidthToTvgt lw) \(Num.toStr radius) \(boolToStr largeArc) \(boolToStr sweep) (\(Num.toStr x) \(Num.toStr y)))"
         Close lw -> "(close \(lineWidthToTvgt lw))"
 
-expect horizontal { x: 285 } |> toTvgt == "(horiz - 285.0)"
-expect vertical { y: 670 } |> toTvgt == "(vert - 670.0)"
-expect line { x: 375, y: 660 } |> toTvgt == "(line - 375.0 660.0)"
+expect horizontal { x: 285 } |> toText == "(horiz - 285.0)"
+expect vertical { y: 670 } |> toText == "(vert - 670.0)"
+expect line { x: 375, y: 660 } |> toText == "(line - 375.0 660.0)"
 expect 
     bezier { x1: 350, y1: 680, x2: 365, y2: 710, x3: 350, y3: 710 } 
-    |> toTvgt == "(bezier - (350.0 680.0) (365.0 710.0) (350.0 710.0))"
+    |> toText == "(bezier - (350.0 680.0) (365.0 710.0) (350.0 710.0))"
 
 expect 
     quadraticBezier { x1: 325, y1: 710, x2: 325, y2: 685 } 
-    |> toTvgt == "(quadratic_bezier - (325.0 710.0) (325.0 685.0))"
+    |> toText == "(quadratic_bezier - (325.0 710.0) (325.0 685.0))"
 
 expect 
     arcEllipse { lw: Set 20, radiusX: 35, radiusY: 50, angle: 1.5, largeArc: Bool.false, sweep: Bool.true, x: 300, y: 695 }
-    |> toTvgt == "(arc_ellipse 20.0 35.0 50.0 1.5 false true (300.0 695.0))"
+    |> toText == "(arc_ellipse 20.0 35.0 50.0 1.5 false true (300.0 695.0))"
 
 expect 
     arcCircle { radius: 14, largeArc: Bool.false, sweep: Bool.false, x: 275, y: 685 }
-    |> toTvgt == "(arc_circle - 14.0 false false (275.0 685.0))"
+    |> toText == "(arc_circle - 14.0 false false (275.0 685.0))"
 
-expect close {} |> toTvgt == "(close -)"
+expect close {} |> toText == "(close -)"

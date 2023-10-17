@@ -1,30 +1,30 @@
-# Roc TinyVG
+# Roc TinyVG 🌱
 
 A graphics library for the Roc programming language implementing the [Tiny Vector Graphics format](https://tinyvg.tech).
 
-## Status
+## Status 🎨
 
 In-development -- WIP to support the [roc-graphics-mach experimental platform](https://github.com/lukewilliamboswell/roc-graphics-mach)
 
 If there is anything you would like to add raise an issue and/or a PR. Please review the [TinyVG text format](https://github.com/TinyVG/specification/blob/main/text-format.md) and the [examples](https://github.com/TinyVG/examples/blob/main/files/everything-32.tvgt) which are helpful for writing tests.
 
-## Examples 
+## Examples 🖼️
 
 You can build all the examples using `bash examples.sh`, you should see `.tvgt` and `.svg` files in the `examples/` directory. 
 
 > Note that you will need `tvg-text` available on your PATH to build the examples.
 
-## Documentation
+## Documentation ✏️
 
 Hosted on GitHub pages site at [https://lukewilliamboswell.github.io/roc-tinvyvg/](https://lukewilliamboswell.github.io/roc-tinvyvg/)
 
 To generate locally use `roc docs package/main.roc` and then open a file server in the `generated-docs/` directory.
 
-## Package
+## Package 🏠
 
 To bundle into a package use `roc build --bundle .tar.br package/main.roc` and then host the resulting `.tar.br` file on a web server.
 
-# Drawing
+# Drawing ✍️
 
 The code below is an example which draws the roc-lang purple bird logo on a white square background. 
 
@@ -32,8 +32,8 @@ The code below is an example which draws the roc-lang purple bird logo on a whit
 graphic : Graphic
 graphic = 
     g0 = Graphic.graphic {}
-    g1, white <- g0 |> Graphic.addColor (Color.fromBasic White)
-    g2, purple <- g1 |> Graphic.addColor (Color.rocPurple)
+    g1, white <- g0 |> Graphic.applyColor (Color.fromBasic White)
+    g2, purple <- g1 |> Graphic.applyColor (Color.rocPurple)
 
     # Draws the white square background
     whiteSquare = Command.fillPath (Style.flat white) {x : 0, y : 0 } [
@@ -62,3 +62,7 @@ graphic =
     |> Graphic.addCommand whiteSquare
     |> Graphic.addCommand rocBird
 ```
+
+And here is the rendered output 🎉
+
+![Roc Logo](roc_logo.svg)

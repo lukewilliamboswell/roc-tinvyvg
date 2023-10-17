@@ -4,7 +4,7 @@ interface Style
         flat,
         linear,
         radial,
-        toTvgt,
+        toText,
     ]
     imports []
 
@@ -32,8 +32,8 @@ radial : (Dec, Dec), (Dec, Dec), U32, U32 -> Style
 radial = \p1, p2, c1, c2 ->
     @Style (Radial p1 p2 c1 c2)
 
-toTvgt : Style -> Str
-toTvgt = \@Style style ->
+toText : Style -> Str
+toText = \@Style style ->
     when style is
         Flat id -> "(flat \(Num.toStr id))"
         Linear p1 p2 c1 c2 -> "(linear \(xyToStr p1) \(xyToStr p2) \(Num.toStr c1) \(Num.toStr c2))"
@@ -46,7 +46,7 @@ testC1 = 56
 testC2 = 43
 
 expect xyToStr (123456, 0) == "(123456.0 0.0)"
-expect flat testC1 |> toTvgt == "(flat 56)"
-expect linear (0, 12) (234, 567) testC1 testC2 |> toTvgt == "(linear (0.0 12.0) (234.0 567.0) 56 43)"
-expect radial (0, 12) (234, 567) testC1 testC2 |> toTvgt == "(radial (0.0 12.0) (234.0 567.0) 56 43)"
+expect flat testC1 |> toText == "(flat 56)"
+expect linear (0, 12) (234, 567) testC1 testC2 |> toText == "(linear (0.0 12.0) (234.0 567.0) 56 43)"
+expect radial (0, 12) (234, 567) testC1 testC2 |> toText == "(radial (0.0 12.0) (234.0 567.0) 56 43)"
 expect flat testC1 == @Style (Flat testC1)

@@ -17,6 +17,8 @@ fi
 rm examples/*.tvgt 2>/dev/null
 rm examples/*.svg 2>/dev/null
 
+sleep 1
+
 # Loop through all .roc files in the examples directory
 for roc_file in examples/*.roc; do
     # Get the base name without the extension
@@ -27,7 +29,7 @@ for roc_file in examples/*.roc; do
     svg_file="examples/$base_name.svg"
 
     # Process each .roc file and generate corresponding .tvgt
-    roc run "$roc_file" > "$tvgt_file"
+    roc run "$roc_file"
 
     # If tvg-text is available, generate the .svg file
     if $tvg_text_available; then

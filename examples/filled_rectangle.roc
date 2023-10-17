@@ -5,10 +5,14 @@ app "example"
     }
     imports [
         pf.Stdout,
-        tvg.Graphic.{Graphic},
+        pf.Path,
+        pf.File,
+        pf.Task,
+        tvg.Graphic.{ Graphic },
         tvg.Color,
         tvg.Style,
         tvg.Command,
+        tvg.PathNode,
     ]
     provides [main] to pf
 
@@ -16,7 +20,7 @@ main =
 
     graphic : Graphic
     graphic = 
-        g1, blue <- Graphic.addColor (Graphic.graphic {}) (Color.fromBasic Blue)
+        g1, blue <- Graphic.applyColor (Graphic.graphic {}) (Color.fromBasic Blue)
 
         rectStyle = Style.flat blue
 
@@ -25,6 +29,10 @@ main =
         g1
         |> Graphic.addCommand rect
     
-    graphic 
-    |> Graphic.toStr 
-    |> Stdout.line
+    path = Path.fromStr "examples/filled_rectangle.tvgt"
+    tvgText = Graphic.toText graphic
+
+    result <- File.writeUtf8 path tvgText |> Task.attempt
+    when result is 
+        Ok {} -> Stdout.line "TinVG text format copied to filled_rectangle.tvgt"
+        Err _ -> Stdout.line "ERROR: Failed to write TinVG text format to filled_rectangle.tvgt"

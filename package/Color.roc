@@ -2,7 +2,7 @@ interface Color
     exposes [
         Color,
         ColorEncoding,
-        toTvgt,
+        toText,
         Basic,
         fromBasic,
         basicToStr,
@@ -10,7 +10,7 @@ interface Color
         rocPurple,
     ]
     imports []
-
+ 
 Color := [RGBA8888 U8 U8 U8 U8] implements [Eq { isEq: isEq }]
 
 isEq : Color, Color -> Bool
@@ -19,8 +19,8 @@ isEq = \@Color first, @Color second -> first == second
 ColorEncoding : [RGBA8888]
 
 ## Build a TinyVG Text format string section from this Color
-toTvgt : Color, ColorEncoding -> Str
-toTvgt = \@Color c, _ -> 
+toText : Color, ColorEncoding -> Str
+toText = \@Color c, _ -> 
     # TODO use ColorEncoding
     when c is 
         RGBA8888 r g b a -> "(\(u8ToTvgt r) \(u8ToTvgt g) \(u8ToTvgt b) \(u8ToTvgt a))"
@@ -66,7 +66,7 @@ truncateFrac = \frac ->
 
 expect truncateFrac "0.498039215686274509" == "0.49"
 
-expect (@Color (RGBA8888 0 255 0 255)) |> toTvgt RGBA8888 == "(0.0 1.0 0.0 1.0)"
+expect (@Color (RGBA8888 0 255 0 255)) |> toText RGBA8888 == "(0.0 1.0 0.0 1.0)"
 
 ## The color Purple used for the Roc bird logo
 rocPurple : Color

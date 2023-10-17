@@ -6,7 +6,7 @@ interface Command
         fillPath,
         outlineFillRectangles,
         drawLines,
-        toTvgt,
+        toText,
     ]
     imports [
         Style.{Style},
@@ -16,6 +16,7 @@ interface Command
 PositionSize : { x: Dec, y: Dec, width: Dec, height: Dec}
 Position : {x : Dec, y : Dec }
 
+## Represent a drawing command such as DrawLines or FillRectangles.
 Command := [
         FillRectangles Style (List PositionSize),
         FillPath Style Position (List PathNode),
@@ -26,27 +27,32 @@ Command := [
 isEq : Command, Command -> Bool
 isEq = \@Command first, @Command second -> first == second
 
+## Fill a list of rectangles with a style.
 fillRectangles : Style, List PositionSize -> Command
 fillRectangles = \style, rects -> @Command (FillRectangles style rects)
 
+## Fill a path with a style.
 fillPath : Style, Position, List PathNode -> Command
 fillPath = \style, position, nodes -> @Command (FillPath style position nodes)
 
+## Fill a list of rectangles with a style and outline them with another style.
 outlineFillRectangles : { fillStyle : Style, lineStyle : Style, lw ? LineWidth }, List PositionSize -> Command
 outlineFillRectangles = \{ fillStyle, lineStyle, lw ? NoChange }, rects -> 
     @Command (OutlineFillRectangles fillStyle lineStyle lw rects)
 
+## Draw a list of lines with a style.
 drawLines : { style : Style, lw ? LineWidth }, List (Position, Position) -> Command
 drawLines = \{ style, lw ? NoChange }, segments ->
     @Command (DrawLines style lw segments)
 
-toTvgt : Command -> Str
-toTvgt = \@Command command ->
+## Build TVG text format string
+toText : Command -> Str
+toText = \@Command command ->
     when command is 
-        FillRectangles style ps -> "(fill_rectangles \(Style.toTvgt style) (\(ps |> List.map positionSizeToTvgt |> Str.joinWith "")))"
-        FillPath style position nodes -> "(fill_path \(Style.toTvgt style) (\(positionToTvgt position) (\(nodes |> List.map PathNode.toTvgt |> Str.joinWith ""))))"
-        OutlineFillRectangles fillStyle lineStyle lw rects -> "(outline_fill_rectangles \(Style.toTvgt fillStyle) \(Style.toTvgt lineStyle) \(lineWidthToTvgt lw) (\(rects |> List.map positionSizeToTvgt |> Str.joinWith "")))"
-        DrawLines style lw segments -> "(draw_lines \(Style.toTvgt style) \(lineWidthToTvgt lw) (\(segments |> List.map lineSegmentToTvgt |> Str.joinWith " ")))"
+        FillRectangles style ps -> "(fill_rectangles \(Style.toText style) (\(ps |> List.map positionSizeToTvgt |> Str.joinWith "")))"
+        FillPath style position nodes -> "(fill_path \(Style.toText style) (\(positionToTvgt position) (\(nodes |> List.map PathNode.toText |> Str.joinWith ""))))"
+        OutlineFillRectangles fillStyle lineStyle lw rects -> "(outline_fill_rectangles \(Style.toText fillStyle) \(Style.toText lineStyle) \(lineWidthToTvgt lw) (\(rects |> List.map positionSizeToTvgt |> Str.joinWith "")))"
+        DrawLines style lw segments -> "(draw_lines \(Style.toText style) \(lineWidthToTvgt lw) (\(segments |> List.map lineSegmentToTvgt |> Str.joinWith " ")))"
 
 positionSizeToTvgt : PositionSize -> Str
 positionSizeToTvgt = \{x,y,width, height} ->
@@ -79,7 +85,7 @@ expect
         PathNode.arcEllipse { lw: NoChange, radiusX: 35, radiusY: 50, angle: 1.5, largeArc: Bool.false, sweep: Bool.true, x: 300, y: 620 },
         PathNode.arcCircle { lw: NoChange, radius: 14, largeArc: Bool.false, sweep: Bool.false, x: 275, y: 610 },
         PathNode.close { lw: NoChange },
-    ] |> toTvgt == "(fill_path (radial (325.0 610.0) (375.0 635.0) 1 2) ((275.0 585.0) ((horiz - 285.0)(vert - 595.0)(line - 375.0 585.0)(bezier - (350.0 605.0) (365.0 635.0) (350.0 635.0))(quadratic_bezier - (325.0 635.0) (325.0 610.0))(arc_ellipse - 35.0 50.0 1.5 false true (300.0 620.0))(arc_circle - 14.0 false false (275.0 610.0))(close -))))"
+    ] |> toText == "(fill_path (radial (325.0 610.0) (375.0 635.0) 1 2) ((275.0 585.0) ((horiz - 285.0)(vert - 595.0)(line - 375.0 585.0)(bezier - (350.0 605.0) (365.0 635.0) (350.0 635.0))(quadratic_bezier - (325.0 635.0) (325.0 610.0))(arc_ellipse - 35.0 50.0 1.5 false true (300.0 620.0))(arc_circle - 14.0 false false (275.0 610.0))(close -))))"
 
 # test outlineFillRectangles
 expect
@@ -89,7 +95,7 @@ expect
         { x: 275, y: 105, width: 100, height: 15 },
         { x: 275, y: 125, width: 100, height: 15 },
         { x: 275, y: 145, width: 100, height: 15 },
-    ] |> toTvgt
+    ] |> toText
     a == "(outline_fill_rectangles (radial (325.0 130.0) (375.0 155.0) 1 2) (flat 3) 2.5 ((275.0 105.0 100.0 15.0)(275.0 125.0 100.0 15.0)(275.0 145.0 100.0 15.0)))"
 
 # test drawLines
@@ -101,5 +107,5 @@ expect
         ({x:275, y:195},{x:375,y:205}),
         ({x:275, y:205},{x:375,y:215}),
         ({x:275, y:215},{x:375,y:225}),
-    ] |> toTvgt
-    a == "(draw_lines (radial (325.0 210.0) (375.0 235.0) 1 2) 2.5 (((275.0 185.0) (375.0 195.0))((275.0 195.0) (375.0 205.0))((275.0 205.0) (375.0 215.0))((275.0 215.0) (375.0 225.0))))"
+    ] |> toText
+    a == "(draw_lines (radial (325.0 210.0) (375.0 235.0) 1 2) 2.5 (((275.0 185.0) (375.0 195.0)) ((275.0 195.0) (375.0 205.0)) ((275.0 205.0) (375.0 215.0)) ((275.0 215.0) (375.0 225.0))))"

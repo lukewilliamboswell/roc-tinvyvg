@@ -5,7 +5,10 @@ app "example"
     }
     imports [
         pf.Stdout,
-        tvg.Graphic.{Graphic},
+        pf.Path,
+        pf.File,
+        pf.Task,
+        tvg.Graphic.{ Graphic },
         tvg.Color,
         tvg.Style,
         tvg.Command,
@@ -18,8 +21,8 @@ main =
     graphic : Graphic
     graphic = 
         g0 = Graphic.graphic {}
-        g1, white <- g0 |> Graphic.addColor (Color.fromBasic White)
-        g2, purple <- g1 |> Graphic.addColor (Color.rocPurple)
+        g1, white <- g0 |> Graphic.applyColor (Color.fromBasic White)
+        g2, purple <- g1 |> Graphic.applyColor (Color.rocPurple)
 
         # Draws the white square background
         whiteSquare = Command.fillPath (Style.flat white) {x : 0, y : 0 } [
@@ -48,6 +51,10 @@ main =
         |> Graphic.addCommand whiteSquare
         |> Graphic.addCommand rocBird
     
-    graphic 
-    |> Graphic.toStr 
-    |> Stdout.line
+    path = Path.fromStr "examples/filled_path.tvgt"
+    tvgText = Graphic.toText graphic
+
+    result <- File.writeUtf8 path tvgText |> Task.attempt
+    when result is 
+        Ok {} -> Stdout.line "TinVG text format copied to filled_path.tvgt"
+        Err _ -> Stdout.line "ERROR: Failed to write TinVG text format to filled_path.tvgt"

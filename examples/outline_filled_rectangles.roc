@@ -5,10 +5,14 @@ app "example"
     }
     imports [
         pf.Stdout,
+        pf.Path,
+        pf.File,
+        pf.Task,
         tvg.Graphic.{ Graphic },
         tvg.Color,
         tvg.Style,
         tvg.Command,
+        tvg.PathNode,
     ]
     provides [main] to pf
 
@@ -17,11 +21,11 @@ main =
     graphic : Graphic
     graphic =
         g0 = Graphic.graphic {}
-        g1, orange <- g0 |> Graphic.addColor (Color.fromBasic Orange)
-        g2, black <- g1 |> Graphic.addColor (Color.fromBasic Black)
-        g3, green <- g2 |> Graphic.addColor (Color.fromBasic Green)
-        g4, cyan <- g3 |> Graphic.addColor (Color.fromBasic Cyan)
-        g5, sea <- g4 |> Graphic.addColor (Color.fromBasic Sea)
+        g1, orange <- g0 |> Graphic.applyColor (Color.fromBasic Orange)
+        g2, black <- g1 |> Graphic.applyColor (Color.fromBasic Black)
+        g3, green <- g2 |> Graphic.applyColor (Color.fromBasic Green)
+        g4, cyan <- g3 |> Graphic.applyColor (Color.fromBasic Cyan)
+        g5, sea <- g4 |> Graphic.applyColor (Color.fromBasic Sea)
 
         # helper to draw a square
         mySquare = \color, x, y ->
@@ -40,6 +44,10 @@ main =
         |> Graphic.addCommand (mySquare sea 15 15)
         |> Graphic.addCommand (mySquare green 20 20)
 
-    graphic
-    |> Graphic.toStr
-    |> Stdout.line
+    path = Path.fromStr "examples/outline_filled_rectangles.tvgt"
+    tvgText = Graphic.toText graphic
+
+    result <- File.writeUtf8 path tvgText |> Task.attempt
+    when result is 
+        Ok {} -> Stdout.line "TinVG text format copied to outline_filled_rectangles.tvgt"
+        Err _ -> Stdout.line "ERROR: Failed to write TinVG text format to outline_filled_rectangles.tvgt"

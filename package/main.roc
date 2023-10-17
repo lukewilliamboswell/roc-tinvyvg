@@ -4,5 +4,6 @@ package "tinyvg"
         Color,
         Style,
         Command,
+        PathNode,
     ]
     packages {}
