@@ -25,7 +25,8 @@ PathNode := [
     ArcEllipse LineWidth Dec Dec Dec Bool Bool (Dec, Dec),
     ArcCircle LineWidth Dec Bool Bool (Dec, Dec),
     Close LineWidth,
-] implements [Eq { isEq: isEq }]
+]
+    implements [Eq { isEq: isEq }]
 
 # (horiz <line_width> <x>)
 # (vert <line_width> <y>)
@@ -79,30 +80,34 @@ toText = \@PathNode pn ->
     when pn is
         Horizontal lw x -> "(horiz \(lineWidthToTvgt lw) \(Num.toStr x))"
         Vertical lw y -> "(vert \(lineWidthToTvgt lw) \(Num.toStr y))"
-        Line lw (x,y) -> "(line \(lineWidthToTvgt lw) \(Num.toStr x) \(Num.toStr y))"
-        Bezier lw (x1,y1) (x2,y2) (x3,y3) -> "(bezier \(lineWidthToTvgt lw) (\(Num.toStr x1) \(Num.toStr y1)) (\(Num.toStr x2) \(Num.toStr y2)) (\(Num.toStr x3) \(Num.toStr y3)))"
-        QuadraticBezier lw (x1,y1) (x2,y2) -> "(quadratic_bezier \(lineWidthToTvgt lw) (\(Num.toStr x1) \(Num.toStr y1)) (\(Num.toStr x2) \(Num.toStr y2)))"
-        ArcEllipse lw radiusX radiusY angle largeArc sweep (x,y) -> "(arc_ellipse \(lineWidthToTvgt lw) \(Num.toStr radiusX) \(Num.toStr radiusY) \(Num.toStr angle) \(boolToStr largeArc) \(boolToStr sweep) (\(Num.toStr x) \(Num.toStr y)))"
-        ArcCircle lw radius largeArc sweep (x,y) -> "(arc_circle \(lineWidthToTvgt lw) \(Num.toStr radius) \(boolToStr largeArc) \(boolToStr sweep) (\(Num.toStr x) \(Num.toStr y)))"
+        Line lw (x, y) -> "(line \(lineWidthToTvgt lw) \(Num.toStr x) \(Num.toStr y))"
+        Bezier lw (x1, y1) (x2, y2) (x3, y3) -> "(bezier \(lineWidthToTvgt lw) (\(Num.toStr x1) \(Num.toStr y1)) (\(Num.toStr x2) \(Num.toStr y2)) (\(Num.toStr x3) \(Num.toStr y3)))"
+        QuadraticBezier lw (x1, y1) (x2, y2) -> "(quadratic_bezier \(lineWidthToTvgt lw) (\(Num.toStr x1) \(Num.toStr y1)) (\(Num.toStr x2) \(Num.toStr y2)))"
+        ArcEllipse lw radiusX radiusY angle largeArc sweep (x, y) -> "(arc_ellipse \(lineWidthToTvgt lw) \(Num.toStr radiusX) \(Num.toStr radiusY) \(Num.toStr angle) \(boolToStr largeArc) \(boolToStr sweep) (\(Num.toStr x) \(Num.toStr y)))"
+        ArcCircle lw radius largeArc sweep (x, y) -> "(arc_circle \(lineWidthToTvgt lw) \(Num.toStr radius) \(boolToStr largeArc) \(boolToStr sweep) (\(Num.toStr x) \(Num.toStr y)))"
         Close lw -> "(close \(lineWidthToTvgt lw))"
 
 expect horizontal { x: 285 } |> toText == "(horiz - 285.0)"
 expect vertical { y: 670 } |> toText == "(vert - 670.0)"
 expect line { x: 375, y: 660 } |> toText == "(line - 375.0 660.0)"
-expect 
-    bezier { x1: 350, y1: 680, x2: 365, y2: 710, x3: 350, y3: 710 } 
-    |> toText == "(bezier - (350.0 680.0) (365.0 710.0) (350.0 710.0))"
+expect
+    bezier { x1: 350, y1: 680, x2: 365, y2: 710, x3: 350, y3: 710 }
+    |> toText
+    == "(bezier - (350.0 680.0) (365.0 710.0) (350.0 710.0))"
 
-expect 
-    quadraticBezier { x1: 325, y1: 710, x2: 325, y2: 685 } 
-    |> toText == "(quadratic_bezier - (325.0 710.0) (325.0 685.0))"
+expect
+    quadraticBezier { x1: 325, y1: 710, x2: 325, y2: 685 }
+    |> toText
+    == "(quadratic_bezier - (325.0 710.0) (325.0 685.0))"
 
-expect 
+expect
     arcEllipse { lw: Set 20, radiusX: 35, radiusY: 50, angle: 1.5, largeArc: Bool.false, sweep: Bool.true, x: 300, y: 695 }
-    |> toText == "(arc_ellipse 20.0 35.0 50.0 1.5 false true (300.0 695.0))"
+    |> toText
+    == "(arc_ellipse 20.0 35.0 50.0 1.5 false true (300.0 695.0))"
 
-expect 
+expect
     arcCircle { radius: 14, largeArc: Bool.false, sweep: Bool.false, x: 275, y: 685 }
-    |> toText == "(arc_circle - 14.0 false false (275.0 685.0))"
+    |> toText
+    == "(arc_circle - 14.0 false false (275.0 685.0))"
 
 expect close {} |> toText == "(close -)"

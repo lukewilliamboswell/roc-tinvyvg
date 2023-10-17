@@ -48,6 +48,6 @@ main =
     tvgText = Graphic.toText graphic
 
     result <- File.writeUtf8 path tvgText |> Task.attempt
-    when result is 
+    when result is
         Ok {} -> Stdout.line "TinVG text format copied to outline_filled_rectangles.tvgt"
         Err _ -> Stdout.line "ERROR: Failed to write TinVG text format to outline_filled_rectangles.tvgt"

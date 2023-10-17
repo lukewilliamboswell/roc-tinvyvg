@@ -10,7 +10,7 @@ interface Color
         rocPurple,
     ]
     imports []
- 
+
 Color := [RGBA8888 U8 U8 U8 U8] implements [Eq { isEq: isEq }]
 
 isEq : Color, Color -> Bool
@@ -20,23 +20,22 @@ ColorEncoding : [RGBA8888]
 
 ## Build a TinyVG Text format string section from this Color
 toText : Color, ColorEncoding -> Str
-toText = \@Color c, _ -> 
+toText = \@Color c, _ ->
     # TODO use ColorEncoding
-    when c is 
+    when c is
         RGBA8888 r g b a -> "(\(u8ToTvgt r) \(u8ToTvgt g) \(u8ToTvgt b) \(u8ToTvgt a))"
 
 u8ToTvgt : U8 -> Str
 u8ToTvgt = \u8 ->
     u8
     |> Num.toFrac
-    |> Num.divChecked 255 
-    |> Result.withDefault 0.0 
-    |> Num.toStr
-    # Truncate the Str to reduce the number of decimal places, and saves us bytes
-    # to be transferred 
-    # 
+    |> Num.divChecked 255
+    |> Result.withDefault 0.0
+    |> Num.toStr # Truncate the Str to reduce the number of decimal places, and saves us bytes
+    # to be transferred
+    #
     # TODO remove when if/when we can send floats to zig
-    |> truncateFrac 
+    |> truncateFrac
 
 truncateFrac : Str -> Str
 truncateFrac = \frac ->
@@ -46,20 +45,23 @@ truncateFrac = \frac ->
     List.walkUntil fracBytes (Integer 0) \state, elem ->
         when state is
             Integer count ->
-                if elem == '.' then 
+                if elem == '.' then
                     Continue (Decimal (count + 1))
-                else 
+                else
                     Continue (Integer (count + 1))
-            Decimal count -> 
+
+            Decimal count ->
                 Continue (FirstDecimal (count + 1))
+
             FirstDecimal count ->
                 Break (FirstDecimal (count + 1))
-    |> \state -> 
-        len = when state is
-            Integer count -> count
-            Decimal count -> count
-            FirstDecimal count -> count
-        
+    |> \state ->
+        len =
+            when state is
+                Integer count -> count
+                Decimal count -> count
+                FirstDecimal count -> count
+
         List.sublist fracBytes { start: 0, len }
     |> Str.fromUtf8
     |> Result.withDefault frac # unreachable
